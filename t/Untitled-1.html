@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Pro - Jogo Avançado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --danger: #f72585;
+            --warning: #f77f00;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --bg: #ffffff;
+            --text: #212529;
+            --card-bg: #ffffff;
+            --border: #dee2e6;
+        }
+
+        [data-theme="dark"] {
+            --primary: #4895ef;
+            --secondary: #4361ee;
+            --accent: #3f37c9;
+            --bg: #121212;
+            --text: #f8f9fa;
+            --card-bg: #1e1e1e;
+            --border: #2d2d2d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 200px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card h3 {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .column {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .column-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .column-counter {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .column-wip {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .tasks-container {
+            flex: 1;
+            min-height: 100px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .task {
+            background-color: var(--bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            cursor: grab;
+            position: relative;
+            transition: all 0.2s;
+            border-left: 4px solid var(--primary);
+        }
+
+        .task:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .task:active {
+            cursor: grabbing;
+        }
+
+        .task-high {
+            border-left-color: var(--danger);
+        }
+
+        .task-medium {
+            border-left-color: var(--warning);
+        }
+
+        .task-low {
+            border-left-color: var(--success);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .task-priority {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        .priority-high {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background-color: rgba(247, 127, 0, 0.1);
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        .task-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .task-timer {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            gap: 5px;
+        }
+
+        .task:hover .task-actions {
+            display: flex;
+        }
+
+        .task-btn {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--text);
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .task-btn:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .add-task-form {
+            margin-top: 20px;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-control {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .drag-over {
+            background-color: rgba(67, 97, 238, 0.1);
+            outline: 2px dashed var(--primary);
+        }
+
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .progress-container {
+            margin-top: 30px;
+        }
+
+        .progress-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--gray);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); }
+            to { transform: translateY(0); }
+        }
+
+        .task {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .column {
+            animation: slideIn 0.4s ease forwards;
+        }
+
+        /* Tutorial steps */
+        .tutorial-step {
+            position: fixed;
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 300px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tutorial-step:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+        }
+
+        .tutorial-step.top:after {
+            bottom: -20px;
+            left: 20px;
+            border-top-color: var(--primary);
+        }
+
+        .tutorial-step.right:after {
+            left: -20px;
+            top: 20px;
+            border-right-color: var(--primary);
+        }
+
+        .tutorial-step.bottom:after {
+            top: -20px;
+            left: 20px;
+            border-bottom-color: var(--primary);
+        }
+
+        .tutorial-step.left:after {
+            right: -20px;
+            top: 20px;
+            border-left-color: var(--primary);
+        }
+
+        .tutorial-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .tutorial-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .tutorial-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-tasks"></i>
+                <span>Kanban Pro</span>
+            </div>
+            <div class="user-controls">
+                <button id="theme-toggle" class="btn btn-outline">
+                    <i class="fas fa-moon"></i>
+                    <span>Modo Escuro</span>
+                </button>
+                <button id="new-user-btn" class="btn btn-outline">
+                    <i class="fas fa-user"></i>
+                    <span>Convidado</span>
+                </button>
+                <button id="help-btn" class="btn btn-primary">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Ajuda</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="game-stats">
+            <div class="stat-card">
+                <h3>Pontuação</h3>
+                <div class="value" id="score">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tarefas Concluídas</h3>
+                <div class="value" id="completed-tasks">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Eficiência</h3>
+                <div class="value" id="efficiency">0%</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tempo Médio</h3>
+                <div class="value" id="avg-time">0m</div>
+            </div>
+        </div>
+
+        <div class="kanban-board">
+            <div id="todo-col" class="column" data-col="todo">
+                <div class="column-header">
+                    <div class="column-title">
+                        <i class="fas fa-inbox"></i>
+                        <span>A Fazer</span>
+                        <div class="column-counter" id="todo-count">0</div>
+                    </div>
+                    <div class="column-wip">Limite: 10</div>
+                </div>
+                <div class="tasks-container" id="todo-tasks" 
+                     ondragover="allowDrop(event)" 
+                     ondragleave="dragLeave(event)" 
+                     ondrop="drop(event)">
+                    <!-- Tarefas serão adicionadas aqui via JavaScript -->
+                </div>
+            </div>
+
+            <div id="doing-col" class="column" data-col="doing">
+                <div class="column-header">
+                    <div class="column-title">
+                        <i class="fas fa-cog"></i>
+                        <span>Fazendo</span>
+                        <div class="column-counter" id="doing-count">0</div>
+                    </div>
+                    <div class="column-wip">Limite: 3</div>
+                </div>
+                <div class="tasks-container" id="doing-tasks"
+                     ondragover="allowDrop(event)" 
+                     ondragleave="dragLeave(event)" 
+                     ondrop="drop(event)">
+                </div>
+            </div>
+
+            <div id="done-col" class="column" data-col="done">
+                <div class="column-header">
+                    <div class="column-title">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Feito</span>
+                        <div class="column-counter" id="done-count">0</div>
+                    </div>
+                    <div class="column-wip">Hoje: 0</div>
+                </div>
+                <div class="tasks-container" id="done-tasks"
+                     ondragover="allowDrop(event)" 
+                     ondragleave="dragLeave(event)" 
+                     ondrop="drop(event)">
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <h3 class="progress-title">Progresso Diário</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="progress-text">0% completo</span>
+                <span id="tasks-remaining">0 tarefas restantes</span>
+            </div>
+        </div>
+
+        <div class="add-task-form">
+            <h3><i class="fas fa-plus-circle"></i> Adicionar Nova Tarefa</h3>
+            <div class="form-row">
+                <div class="form-group form-control">
+                    <label for="task-title">Título da Tarefa</label>
+                    <input type="text" id="task-title" placeholder="O que precisa ser feito?">
+                </div>
+                <div class="form-group" style="width: 150px;">
+                    <label for="task-priority">Prioridade</label>
+                    <select id="task-priority">
+                        <option value="high">Alta</option>
+                        <option value="medium" selected>Média</option>
+                        <option value="low">Baixa</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="task-description">Descrição (Opcional)</label>
+                <textarea id="task-description" placeholder="Detalhes da tarefa..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="task-tags">Tags (separadas por vírgula)</label>
+                <input type="text" id="task-tags" placeholder="ex: design, desenvolvimento, bug">
+            </div>
+            <button id="add-task-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Adicionar Tarefa
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Usuário -->
+    <div class="modal" id="user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Perfil do Usuário</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="user-name">Nome</label>
+                <input type="text" id="user-name" placeholder="Seu nome">
+            </div>
+            <div class="form-group">
+                <label for="user-avatar">Avatar (URL)</label>
+                <input type="text" id="user-avatar" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label for="user-wip">Limite WIP Pessoal</label>
+                <input type="number" id="user-wip" min="1" max="5" value="3">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline close-modal">Cancelar</button>
+                <button id="save-user-btn" class="btn btn-primary">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ajuda -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Como Jogar Kanban Pro</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <h4>Objetivo do Jogo</h4>
+                <p>Gerencie seu fluxo de trabalho movendo tarefas através do quadro Kanban para maximizar sua pontuação e eficiência.</p>
+                
+                <h4>Sistema de Pontuação</h4>
+                <ul style="margin-left: 20px; margin-bottom: 15px;">
+                    <li><strong>A Fazer → Fazendo:</strong> +5 pontos</li>
+                    <li><strong>Fazendo → Feito:</strong> +10 pontos</li>
+                    <li><strong>A Fazer → Feito (pular etapa):</strong> -5 pontos</li>
+                    <li><strong>Retroceder tarefas:</strong> -15 pontos</li>
+                    <li><strong>Concluir tarefa prioritária:</strong> Bônus +5 a +15</li>
+                </ul>
+                
+                <h4>Regras Importantes</h4>
+                <ul style="margin-left: 20px;">
+                    <li>Respeite o limite WIP (Work In Progress) de 3 tarefas em "Fazendo"</li>
+                    <li>Tarefas com prioridade alta dão mais pontos</li>
+                    <li>Monitorar o tempo gasto em cada tarefa</li>
+                    <li>Mantenha seu fluxo equilibrado</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button id="start-tutorial" class="btn btn-primary">Iniciar Tutorial</button>
+                <button class="btn btn-outline close-modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado global do jogo
+        const state = {
+            user: {
+                name: 'Convidado',
+                avatar: '',
+                wipLimit: 3,
+                score: 0,
+                completedTasks: 0,
+                efficiency: 0,
+                avgTime: 0
+            },
+            tasks: {
+                todo: [],
+                doing: [],
+                done: []
+            },
+            wipLimits: {
+                todo: 10,
+                doing: 3,
+                done: Infinity
+            },
+            nextId: 1,
+            activeTutorial: false,
+            tutorialStep: 0,
+            theme: 'light'
+        };
+
+        // Elementos DOM
+        const DOM = {
+            score: document.getElementById('score'),
+            completedTasks: document.getElementById('completed-tasks'),
+            efficiency: document.getElementById('efficiency'),
+            avgTime: document.getElementById('avg-time'),
+            todoCount: document.getElementById('todo-count'),
+            doingCount: document.getElementById('doing-count'),
+            doneCount: document.getElementById('done-count'),
+            progressFill: document.getElementById('progress-fill'),
+            progressText: document.getElementById('progress-text'),
+            tasksRemaining: document.getElementById('tasks-remaining'),
+            todoTasks: document.getElementById('todo-tasks'),
+            doingTasks: document.getElementById('doing-tasks'),
+            doneTasks: document.getElementById('done-tasks'),
+            taskTitle: document.getElementById('task-title'),
+            taskPriority: document.getElementById('task-priority'),
+            taskDescription: document.getElementById('task-description'),
+            taskTags: document.getElementById('task-tags'),
+            addTaskBtn: document.getElementById('add-task-btn'),
+            themeToggle: document.getElementById('theme-toggle'),
+            newUserBtn: document.getElementById('new-user-btn'),
+            helpBtn: document.getElementById('help-btn'),
+            userModal: document.getElementById('user-modal'),
+            helpModal: document.getElementById('help-modal'),
+            userName: document.getElementById('user-name'),
+            userAvatar: document.getElementById('user-avatar'),
+            userWip: document.getElementById('user-wip'),
+            saveUserBtn: document.getElementById('save-user-btn'),
+            closeModals: document.querySelectorAll('.close-modal'),
+            startTutorial: document.getElementById('start-tutorial')
+        };
+
+        // Inicialização do jogo
+        function initGame() {
+            loadState();
+            renderUser();
+            renderStats();
+            renderColumns();
+            setupEventListeners();
+            
+            // Adicionar algumas tarefas iniciais se for um novo jogo
+            if (state.tasks.todo.length === 0 && state.tasks.doing.length === 0 && state.tasks.done.length === 0) {
+                addSampleTasks();
+            }
+        }
+
+        // Carregar estado salvo do localStorage
+        function loadState() {
+            const savedState = localStorage.getItem('kanbanProState');
+            if (savedState) {
+                const parsed = JSON.parse(savedState);
+                Object.assign(state, parsed);
+                
+                // Atualizar o próximo ID baseado nas tarefas existentes
+                const allTasks = [...state.tasks.todo, ...state.tasks.doing, ...state.tasks.done];
+                if (allTasks.length > 0) {
+                    state.nextId = Math.max(...allTasks.map(t => t.id)) + 1;
+                }
+            }
+        }
+
+        // Salvar estado no localStorage
+        function saveState() {
+            localStorage.setItem('kanbanProState', JSON.stringify(state));
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Adicionar tarefa
+            DOM.addTaskBtn.addEventListener('click', addNewTask);
+            DOM.taskTitle.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addNewTask();
+            });
+
+            // Modal de usuário
+            DOM.newUserBtn.addEventListener('click', () => {
+                DOM.userName.value = state.user.name;
+                DOM.userAvatar.value = state.user.avatar;
+                DOM.userWip.value = state.user.wipLimit;
+                DOM.userModal.classList.add('active');
+            });
+
+            // Modal de ajuda
+            DOM.helpBtn.addEventListener('click', () => {
+                DOM.helpModal.classList.add('active');
+            });
+
+            // Alternar tema
+            DOM.themeToggle.addEventListener('click', toggleTheme);
+
+            // Fechar modais
+            DOM.closeModals.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        modal.classList.remove('active');
+                    });
+                });
+            });
+
+            // Salvar usuário
+            DOM.saveUserBtn.addEventListener('click', saveUser);
+
+            // Iniciar tutorial
+            DOM.startTutorial.addEventListener('click', startTutorial);
+        }
+
+        // Renderizar informações do usuário
+        function renderUser() {
+            DOM.newUserBtn.innerHTML = `
+                <i class="fas fa-user"></i>
+                <span>${state.user.name}</span>
+            `;
+        }
+
+        // Renderizar estatísticas
+        function renderStats() {
+            DOM.score.textContent = state.user.score;
+            DOM.completedTasks.textContent = state.user.completedTasks;
+            DOM.efficiency.textContent = `${state.user.efficiency}%`;
+            DOM.avgTime.textContent = `${state.user.avgTime}m`;
+            
+            // Atualizar contadores de coluna
+            DOM.todoCount.textContent = state.tasks.todo.length;
+            DOM.doingCount.textContent = state.tasks.doing.length;
+            DOM.doneCount.textContent = state.tasks.done.length;
+            
+            // Atualizar barra de progresso
+            const totalTasks = state.tasks.todo.length + state.tasks.doing.length + state.tasks.done.length;
+            const donePercent = totalTasks > 0 ? Math.round((state.tasks.done.length / totalTasks) * 100) : 0;
+            
+            DOM.progressFill.style.width = `${donePercent}%`;
+            DOM.progressText.textContent = `${donePercent}% completo`;
+            DOM.tasksRemaining.textContent = `${state.tasks.todo.length + state.tasks.doing.length} tarefas restantes`;
+        }
+
+        // Renderizar colunas com tarefas
+        function renderColumns() {
+            renderColumn('todo', state.tasks.todo);
+            renderColumn('doing', state.tasks.doing);
+            renderColumn('done', state.tasks.done);
+        }
+
+        // Renderizar uma coluna específica
+        function renderColumn(columnId, tasks) {
+            const columnElement = document.getElementById(`${columnId}-tasks`);
+            columnElement.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const taskElement = createTaskElement(task);
+                columnElement.appendChild(taskElement);
+            });
+            
+            // Atualizar contador
+            document.getElementById(`${columnId}-count`).textContent = tasks.length;
+            
+            // Verificar limite WIP
+            if (columnId === 'doing' && tasks.length > state.wipLimits.doing) {
+                columnElement.parentElement.querySelector('.column-wip').style.color = 'var(--danger)';
+            } else {
+                columnElement.parentElement.querySelector('.column-wip').style.color = 'var(--gray)';
+            }
+        }
+
+        // Criar elemento HTML para uma tarefa
+        function createTaskElement(task) {
+            const taskElement = document.createElement('div');
+            taskElement.className = `task task-${task.priority}`;
+            taskElement.setAttribute('draggable', 'true');
+            taskElement.setAttribute('id', `task-${task.id}`);
+            taskElement.setAttribute('data-id', task.id);
+            taskElement.setAttribute('data-column', task.column);
+            taskElement.setAttribute('ondragstart', 'drag(event)');
+            
+            // Formatar tags
+            const tagsHTML = task.tags.map(tag => 
+                `<span class="tag">${tag.trim()}</span>`
+            ).join('');
+            
+            // Formatar tempo decorrido
+            const timeSpent = task.startTime ? 
+                Math.floor((Date.now() - new Date(task.startTime).getTime()) / 60000) : 0;
+            
+            taskElement.innerHTML = `
+                <div class="task-header">
+                    <div class="task-title">${task.title}</div>
+                    <div class="task-priority priority-${task.priority}">
+                        ${task.priority === 'high' ? 'Alta' : 
+                          task.priority === 'medium' ? 'Média' : 'Baixa'}
+                    </div>
+                </div>
+                ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                ${task.tags.length > 0 ? `<div class="task-tags">${tagsHTML}</div>` : ''}
+                <div class="task-footer">
+                    <div class="task-timer">
+                        <i class="far fa-clock"></i>
+                        <span>${timeSpent}m</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="task-btn" onclick="editTask(${task.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="task-btn" onclick="deleteTask(${task.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return taskElement;
+        }
+
+        // Adicionar tarefas de exemplo
+        function addSampleTasks() {
+            const sampleTasks = [
+                {
+                    id: state.nextId++,
+                    title: "Projetar interface do usuário",
+                    description: "Criar wireframes para a nova funcionalidade",
+                    priority: "high",
+                    tags: ["design", "ui"],
+                    column: "todo",
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: state.nextId++,
+                    title: "Implementar API backend",
+                    description: "Desenvolver endpoints para o novo módulo",
+                    priority: "medium",
+                    tags: ["backend", "api"],
+                    column: "todo",
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: state.nextId++,
+                    title: "Escrever documentação",
+                    description: "Documentar as novas funcionalidades para a equipe",
+                    priority: "low",
+                    tags: ["docs"],
+                    column: "todo",
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            
+            state.tasks.todo.push(...sampleTasks);
+            saveState();
+            renderColumns();
+            renderStats();
+        }
+
+        // Adicionar nova tarefa
+        function addNewTask() {
+            const title = DOM.taskTitle.value.trim();
+            if (!title) return;
+            
+            const newTask = {
+                id: state.nextId++,
+                title: title,
+                description: DOM.taskDescription.value.trim(),
+                priority: DOM.taskPriority.value,
+                tags: DOM.taskTags.value.split(',').filter(tag => tag.trim()),
+                column: 'todo',
+                createdAt: new Date().toISOString()
+            };
+            
+            state.tasks.todo.push(newTask);
+            
+            // Limpar formulário
+            DOM.taskTitle.value = '';
+            DOM.taskDescription.value = '';
+            DOM.taskTags.value = '';
+            DOM.taskPriority.value = 'medium';
+            
+            saveState();
+            renderColumns();
+            renderStats();
+            
+            // Animar a nova tarefa
+            const taskElement = document.getElementById(`task-${newTask.id}`);
+            if (taskElement) {
+                taskElement.style.animation = 'none';
+                setTimeout(() => {
+                    taskElement.style.animation = 'fadeIn 0.5s ease';
+                }, 10);
+            }
+        }
+
+        // Funções de drag and drop
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            ev.target.classList.add('dragging');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            draggedElement.classList.remove('dragging');
+            
+            const taskId = parseInt(draggedElement.getAttribute('data-id'));
+            const sourceColumn = draggedElement.getAttribute('data-column');
+            const targetColumn = ev.currentTarget.parentElement.getAttribute('data-col');
+            
+            // Encontrar a tarefa no estado
+            const taskIndex = state.tasks[sourceColumn].findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+            
+            const task = state.tasks[sourceColumn][taskIndex];
+            
+            // Verificar se a tarefa está mudando de coluna
+            if (sourceColumn !== targetColumn) {
+                // Verificar limite WIP para "Fazendo"
+                if (targetColumn === 'doing' && state.tasks.doing.length >= state.wipLimits.doing) {
+                    alert(`Limite WIP atingido! Você só pode ter ${state.wipLimits.doing} tarefas em "Fazendo".`);
+                    return;
+                }
+                
+                // Atualizar pontuação
+                updateScore(task, sourceColumn, targetColumn);
+                
+                // Registrar tempo se estiver saindo de "Fazendo"
+                if (sourceColumn === 'doing') {
+                    task.endTime = new Date().toISOString();
+                    const timeSpent = Math.floor((new Date(task.endTime) - new Date(task.startTime)) / 60000);
+                    updateAverageTime(timeSpent);
+                }
+                
+                // Registrar tempo de início se estiver entrando em "Fazendo"
+                if (targetColumn === 'doing') {
+                    task.startTime = new Date().toISOString();
+                }
+                
+                // Mover a tarefa
+                state.tasks[sourceColumn].splice(taskIndex, 1);
+                task.column = targetColumn;
+                state.tasks[targetColumn].push(task);
+                
+                // Se a tarefa foi concluída
+                if (targetColumn === 'done') {
+                    state.user.completedTasks++;
+                    updateEfficiency();
+                }
+                
+                saveState();
+            }
+            
+            // Atualizar a interface
+            renderColumns();
+            renderStats();
+        }
+
+        // Atualizar pontuação baseada no movimento
+        function updateScore(task, sourceColumn, targetColumn) {
+            let points = 0;
+            let message = "";
+            
+            if (sourceColumn === 'todo' && targetColumn === 'doing') {
+                points = 5;
+                message = "Bom trabalho! +5 pontos";
+            } 
+            else if (sourceColumn === 'doing' && targetColumn === 'done') {
+                points = 10;
+                
+                // Bônus por prioridade
+                if (task.priority === 'high') points += 15;
+                else if (task.priority === 'medium') points += 10;
+                else points += 5;
+                
+                message = `Excelente! +${points} pontos`;
+            } 
+            else if (sourceColumn === 'todo' && targetColumn === 'done') {
+                points = -5;
+                message = "Você pulou a coluna 'Fazendo'! -5 pontos";
+            } 
+            else if ((sourceColumn === 'done' && (targetColumn === 'todo' || targetColumn === 'doing')) ||
+                     (sourceColumn === 'doing' && targetColumn === 'todo')) {
+                points = -15;
+                message = "Retroceder tarefas reduz sua pontuação! -15 pontos";
+            }
+            
+            if (points !== 0) {
+                state.user.score += points;
+                if (message) {
+                    showNotification(message, points > 0 ? 'success' : 'error');
+                }
+            }
+        }
+
+        // Atualizar tempo médio de conclusão
+        function updateAverageTime(newTime) {
+            if (state.user.completedTasks === 0) {
+                state.user.avgTime = Math.round(newTime);
+            } else {
+                state.user.avgTime = Math.round(
+                    (state.user.avgTime * (state.user.completedTasks - 1) + newTime) / state.user.completedTasks
+                );
+            }
+        }
+
+        // Atualizar eficiência
+        function updateEfficiency() {
+            const totalMoves = state.user.completedTasks * 2; // Ideal: todo->doing->done
+            const actualMoves = state.user.score / 5; // Cada movimento perfeito vale 5+10=15 pontos (5 por etapa)
+            
+            if (totalMoves > 0) {
+                state.user.efficiency = Math.min(100, Math.round((actualMoves / totalMoves) * 100));
+            }
+        }
+
+        // Deletar tarefa
+        function deleteTask(taskId) {
+            if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return;
+            
+            let taskDeleted = false;
+            
+            // Procurar a tarefa em todas as colunas
+            for (const column in state.tasks) {
+                const index = state.tasks[column].findIndex(t => t.id === taskId);
+                if (index !== -1) {
+                    state.tasks[column].splice(index, 1);
+                    taskDeleted = true;
+                    break;
+                }
+            }
+            
+            if (taskDeleted) {
+                saveState();
+                renderColumns();
+                renderStats();
+                showNotification('Tarefa excluída!', 'info');
+            }
+        }
+
+        // Editar tarefa (simplificado para exemplo)
+        function editTask(taskId) {
+            alert('Funcionalidade de edição seria implementada aqui!');
+        }
+
+        // Alternar tema claro/escuro
+        function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', state.theme);
+            
+            DOM.themeToggle.innerHTML = `
+                <i class="fas ${state.theme === 'light' ? 'fa-moon' : 'fa-sun'}"></i>
+                <span>Modo ${state.theme === 'light' ? 'Escuro' : 'Claro'}</span>
+            `;
+            
+            saveState();
+        }
+
+        // Salvar configurações do usuário
+        function saveUser() {
+            state.user.name = DOM.userName.value.trim() || 'Convidado';
+            state.user.avatar = DOM.userAvatar.value.trim();
+            state.user.wipLimit = parseInt(DOM.userWip.value) || 3;
+            state.wipLimits.doing = state.user.wipLimit;
+            
+            renderUser();
+            DOM.userModal.classList.remove('active');
+            saveState();
+            showNotification('Perfil atualizado!', 'success');
+        }
+
+        // Mostrar notificação
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Iniciar tutorial
+        function startTutorial() {
+            state.activeTutorial = true;
+            state.tutorialStep = 0;
+            DOM.helpModal.classList.remove('active');
+            nextTutorialStep();
+        }
+
+        // Próximo passo do tutorial
+        function nextTutorialStep() {
+            const steps = [
+                {
+                    title: "Bem-vindo ao Kanban Pro!",
+                    text: "Vamos aprender a usar este jogo de gerenciamento de tarefas.",
+                    element: null,
+                    position: "center"
+                },
+                {
+                    title: "Adicionar Tarefas",
+                    text: "Preencha o formulário abaixo para adicionar novas tarefas à coluna 'A Fazer'.",
+                    element: DOM.addTaskBtn,
+                    position: "top"
+                },
+                {
+                    title: "Mover Tarefas",
+                    text: "Arraste tarefas entre colunas para simular seu fluxo de trabalho.",
+                    element: document.querySelector('.task'),
+                    position: "right"
+                },
+                {
+                    title: "Limite WIP",
+                    text: "A coluna 'Fazendo' tem um limite de tarefas. Respeite-o para maximizar sua pontuação!",
+                    element: document.getElementById('doing-col'),
+                    position: "bottom"
+                },
+                {
+                    title: "Pontuação",
+                    text: "Sua pontuação é calculada baseada em como você move as tarefas através do quadro.",
+                    element: document.getElementById('score'),
+                    position: "left"
+                },
+                {
+                    title: "Tutorial Concluído",
+                    text: "Agora você está pronto para jogar! Gerencie suas tarefas com eficiência para obter a maior pontuação.",
+                    element: null,
+                    position: "center"
+                }
+            ];
+            
+            // Remover passo anterior
+            const existingStep = document.querySelector('.tutorial-step');
+            if (existingStep) existingStep.remove();
+            
+            // Verificar se terminou
+            if (state.tutorialStep >= steps.length) {
+                state.activeTutorial = false;
+                return;
+            }
+            
+            const step = steps[state.tutorialStep];
+            
+            // Criar elemento do passo
+            const stepElement = document.createElement('div');
+            stepElement.className = `tutorial-step ${step.position}`;
+            stepElement.innerHTML = `
+                <h4>${step.title}</h4>
+                <p>${step.text}</p>
+                <div class="tutorial-buttons">
+                    ${state.tutorialStep > 0 ? '<button class="tutorial-btn" id="prev-step">Anterior</button>' : ''}
+                    <button class="tutorial-btn" id="next-step">
+                        ${state.tutorialStep === steps.length - 1 ? 'Concluir' : 'Próximo'}
+                    </button>
+                </div>
+            `;
+            
+            // Posicionar o passo
+            if (step.element) {
+                const rect = step.element.getBoundingClientRect();
+                let top, left;
+                
+                switch (step.position) {
+                    case 'top':
+                        top = rect.top - stepElement.offsetHeight - 10;
+                        left = rect.left + rect.width / 2 - stepElement.offsetWidth / 2;
+                        break;
+                    case 'right':
+                        top = rect.top + rect.height / 2 - stepElement.offsetHeight / 2;
+                        left = rect.right + 10;
+                        break;
+                    case 'bottom':
+                        top = rect.bottom + 10;
+                        left = rect.left + rect.width / 2 - stepElement.offsetWidth / 2;
+                        break;
+                    case 'left':
+                        top = rect.top + rect.height / 2 - stepElement.offsetHeight / 2;
+                        left = rect.left - stepElement.offsetWidth - 10;
+                        break;
+                }
+                
+                stepElement.style.top = `${top}px`;
+                stepElement.style.left = `${left}px`;
+            } else {
+                // Posição centralizada
+                stepElement.style.top = '50%';
+                stepElement.style.left = '50%';
+                stepElement.style.transform = 'translate(-50%, -50%)';
+            }
+            
+            document.body.appendChild(stepElement);
+            
+            // Adicionar event listeners aos botões
+            document.getElementById('next-step').addEventListener('click', () => {
+                state.tutorialStep++;
+                nextTutorialStep();
+            });
+            
+            if (document.getElementById('prev-step')) {
+                document.getElementById('prev-step').addEventListener('click', () => {
+                    state.tutorialStep--;
+                    nextTutorialStep();
+                });
+            }
+        }
+
+        // Inicializar o jogo quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carregar tema salvo
+            if (state.theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                DOM.themeToggle.innerHTML = `
+                    <i class="fas fa-sun"></i>
+                    <span>Modo Claro</span>
+                `;
+            }
+            
+            initGame();
+        });
+    </script>
+</body>
+</html>

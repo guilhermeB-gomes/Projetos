@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin | SneakerBlog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #031CA6;
+            --primary: #035AA6;
+            --primary-light: #3279A6;
+            --accent: #5ABFB5;
+            --light: #D9D9D9;
+            --dark: #333333;
+            --white: #FFFFFF;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: var(--white);
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header h3 i {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .menu-category {
+            color: var(--accent);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding: 0.8rem 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item i {
+            margin-right: 0.8rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--accent);
+            color: var(--white);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            background-color: var(--white);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--light);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 0.5rem;
+            outline: none;
+        }
+
+        .search-bar i {
+            color: var(--primary-light);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: var(--white);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Dashboard Content */
+        .content-wrapper {
+            padding: 1.5rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.posts {
+            background-color: rgba(5, 90, 166, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.comments {
+            background-color: rgba(90, 191, 181, 0.1);
+            color: var(--accent);
+        }
+
+        .stat-icon.views {
+            background-color: rgba(50, 121, 166, 0.1);
+            color: var(--primary-light);
+        }
+
+        .stat-icon.users {
+            background-color: rgba(217, 217, 217, 0.3);
+            color: var(--dark);
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-info p {
+            color: var(--primary-light);
+            font-size: 0.9rem;
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-user {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--primary-light);
+        }
+
+        .activity-text {
+            font-size: 0.9rem;
+        }
+
+        .activity-text a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .activity-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Data Tables */
+        .data-table {
+            width: 100%;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--primary-dark);
+            font-weight: 600;
+            border-bottom: 1px solid var(--light);
+        }
+
+        tr:not(:last-child) {
+            border-bottom: 1px solid var(--light);
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status.published {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .status.draft {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .status.pending {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-light);
+            transition: color 0.3s;
+            margin: 0 0.3rem;
+        }
+
+        .action-btn.edit:hover {
+            color: var(--primary);
+        }
+
+        .action-btn.delete:hover {
+            color: var(--danger);
+        }
+
+        /* Form Styles */
+        .form-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--light);
+            margin-top: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                overflow: hidden;
+            }
+
+            .sidebar-header h3 span,
+            .menu-category,
+            .menu-item span {
+                display: none;
+            }
+
+            .menu-item {
+                justify-content: center;
+                padding: 1rem;
+            }
+
+            .menu-item i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                margin-left: 80px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .search-bar {
+                width: auto;
+            }
+
+            .user-menu .user-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .table-actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-shoe-prints"></i> <span>SneakerAdmin</span></h3>
+            </div>
+            <div class="sidebar-menu">
+                <p class="menu-category">Principal</p>
+                <a href="#" class="menu-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <p class="menu-category">Conteúdo</p>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Posts</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-comments"></i>
+                    <span>Comentários</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-tags"></i>
+                    <span>Categorias</span>
+                </a>
+                
+                <p class="menu-category">Mídia</p>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-image"></i>
+                    <span>Biblioteca</span>
+                </a>
+                
+                <p class="menu-category">Configurações</p>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>Usuários</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <nav class="top-navbar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Pesquisar...">
+                </div>
+                <div class="user-menu">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-avatar">AD</div>
+                        <span class="user-name">Admin</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Dashboard Page -->
+                <div class="dashboard-page">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Novo Post
+                        </button>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon posts">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>142</h3>
+                                <p>Posts Publicados</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon comments">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>356</h3>
+                                <p>Comentários</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon views">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>24.5K</h3>
+                                <p>Visualizações</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon users">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>1.2K</h3>
+                                <p>Usuários</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="recent-activity">
+                        <h2 class="section-title">
+                            <i class="fas fa-clock"></i> Atividade Recente
+                        </h2>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-header">
+                                        <span class="activity-user">João Silva</span>
+                                        <span class="activity-time">10 min atrás</span>
+                                    </div>
+                                    <p class="activity-text">
+                                        Publicou um novo post: <a href="#">Nike Air Jordan 1 Retro High OG: O Clássico que Nunca Sai de Moda</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-header">
+                                        <span class="activity-user">Maria Oliveira</span>
+                                        <span class="activity-time">45 min atrás</span>
+                                    </div>
+                                    <p class="activity-text">
+                                        Adicionou 3 novas imagens na biblioteca de mídia
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-header">
+                                        <span class="activity-user">Carlos Mendes</span>
+                                        <span class="activity-time">2 horas atrás</span>
+                                    </div>
+                                    <p class="activity-text">
+                                        Aprovou 5 comentários pendentes
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-header">
+                                        <span class="activity-user">Ana Claudia</span>
+                                        <span class="activity-time">Ontem</span>
+                                    </div>
+                                    <p class="activity-text">
+                                        Criou uma nova categoria: <a href="#">Lançamentos</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Posts Table -->
+                    <div class="data-table">
+                        <div class="table-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-newspaper"></i> Posts Recentes
+                            </h2>
+                            <div class="table-actions">
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Adicionar
+                                </button>
+                                <button class="btn">
+                                    <i class="fas fa-filter"></i> Filtrar
+                                </button>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Autor</th>
+                                    <th>Categorias</th>
+                                    <th>Status</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Nike Air Jordan 1 Retro High OG</td>
+                                    <td>João Silva</td>
+                                    <td>Tênis, Nike</td>
+                                    <td><span class="status published">Publicado</span></td>
+                                    <td>15/06/2023</td>
+                                    <td>
+                                        <button class="action-btn edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Adidas Yeezy Boost 350 V2</td>
+                                    <td>Maria Oliveira</td>
+                                    <td>Tênis, Adidas</td>
+                                    <td><span class="status published">Publicado</span></td>
+                                    <td>10/06/2023</td>
+                                    <td>
+                                        <button class="action-btn edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>New Balance 990v6</td>
+                                    <td>Carlos Mendes</td>
+                                    <td>Tênis, New Balance</td>
+                                    <td><span class="status published">Publicado</span></td>
+                                    <td>05/06/2023</td>
+                                    <td>
+                                        <button class="action-btn edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Converse Chuck Taylor All Star</td>
+                                    <td>Ana Claudia</td>
+                                    <td>Tênis, Converse</td>
+                                    <td><span class="status draft">Rascunho</span></td>
+                                    <td>01/06/2023</td>
+                                    <td>
+                                        <button class="action-btn edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Puma Future Rider</td>
+                                    <td>João Silva</td>
+                                    <td>Tênis, Puma</td>
+                                    <td><span class="status pending">Pendente</span></td>
+                                    <td>28/05/2023</td>
+                                    <td>
+                                        <button class="action-btn edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="action-btn delete" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Post Editor (Hidden by default) -->
+                <div class="post-editor" style="display: none;">
+                    <div class="page-header">
+                        <h1 class="page-title">Editar Post</h1>
+                        <div>
+                            <button class="btn">
+                                <i class="fas fa-eye"></i> Visualizar
+                            </button>
+                            <button class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="post-title">Título do Post</label>
+                                <input type="text" id="post-title" class="form-control" placeholder="Digite o título do post">
+                            </div>
+                            <div class="form-group">
+                                <label for="post-slug">URL Amigável</label>
+                                <input type="text" id="post-slug" class="form-control" placeholder="URL automática">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="post-content">Conteúdo</label>
+                            <textarea id="post-content" class="form-control" placeholder="Digite o conteúdo do post"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="post-category">Categoria</label>
+                                <select id="post-category" class="form-control">
+                                    <option value="">Selecione uma categoria</option>
+                                    <option value="1">Lançamentos</option>
+                                    <option value="2">Reviews</option>
+                                    <option value="3">Colecionadores</option>
+                                    <option value="4">Tendências</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="post-tags">Tags</label>
+                                <input type="text" id="post-tags" class="form-control" placeholder="Digite as tags separadas por vírgula">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="post-image">Imagem Destacada</label>
+                                <input type="file" id="post-image" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="post-status">Status</label>
+                                <select id="post-status" class="form-control">
+                                    <option value="published">Publicado</option>
+                                    <option value="draft">Rascunho</option>
+                                    <option value="pending">Pendente</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-footer">
+                            <button class="btn">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar Alterações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Toggle between dashboard and post editor
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            document.querySelector('.dashboard-page').style.display = 'none';
+            document.querySelector('.post-editor').style.display = 'block';
+        });
+
+        document.querySelector('.post-editor .btn:first-child').addEventListener('click', function() {
+            document.querySelector('.dashboard-page').style.display = 'block';
+            document.querySelector('.post-editor').style.display = 'none';
+        });
+
+        // Simulate form submission
+        document.querySelectorAll('.post-editor .btn-primary, .post-editor .btn-success').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Post salvo com sucesso!');
+                document.querySelector('.dashboard-page').style.display = 'block';
+                document.querySelector('.post-editor').style.display = 'none';
+            });
+        });
+
+        // Delete confirmation
+        document.querySelectorAll('.action-btn.delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('Tem certeza que deseja excluir este post?')) {
+                    const row = this.closest('tr');
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                    }, 300);
+                }
+            });
+        });
+
+        // Notification dropdown (would need additional HTML/CSS)
+        document.querySelector('.notification-icon').addEventListener('click', function() {
+            alert('Mostrar notificações aqui');
+        });
+
+        // User dropdown (would need additional HTML/CSS)
+        document.querySelector('.user-profile').addEventListener('click', function() {
+            alert('Mostrar menu do usuário aqui');
+        });
+
+        // Generate slug from title
+        document.getElementById('post-title').addEventListener('input', function() {
+            const title = this.value;
+            const slug = title.toLowerCase()
+                .replace(/[^\w\s]/gi, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            document.getElementById('post-slug').value = slug;
+        });
+
+        // Responsive sidebar toggle (for mobile)
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            if (sidebar.style.width === '250px') {
+                sidebar.style.width = '80px';
+                mainContent.style.marginLeft = '80px';
+            } else {
+                sidebar.style.width = '250px';
+                mainContent.style.marginLeft = '250px';
+            }
+        }
+
+        // Initialize any plugins or additional functionality here
+        // For example:
+        // - Rich text editor for post content
+        // - Tag input for tags field
+        // - Date pickers
+        // - Image upload preview
+    </script>
+</body>
+</html>
