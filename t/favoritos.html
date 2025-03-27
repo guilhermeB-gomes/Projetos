@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho e Favoritos | SneakerHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #34495e;
+            --bg: #f8f9fa;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --success: #2ecc71;
+            --warning: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-icon {
+            position: relative;
+            cursor: pointer;
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        .nav-icon:hover {
+            color: var(--accent);
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1400px;
+            margin: 5rem auto 3rem;
+            padding: 0 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            position: sticky;
+            top: 100px;
+            align-self: flex-start;
+        }
+
+        .sidebar-menu {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .sidebar-item {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-item:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--light);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar-item i {
+            margin-right: 0.8rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 4px;
+            background-color: var(--accent);
+            bottom: -10px;
+            left: 0;
+        }
+
+        .clear-all {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .clear-all:hover {
+            text-decoration: underline;
+        }
+
+        .clear-all i {
+            margin-right: 0.5rem;
+        }
+
+        /* Cart Items */
+        .cart-items {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .cart-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
+            padding: 1.2rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
+            padding: 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+
+        .cart-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-right: 1.5rem;
+            border-radius: 8px;
+            background-color: #f5f5f5;
+        }
+
+        .product-details h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .product-details p {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .product-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-top: 0.5rem;
+            border: 1px solid #eee;
+        }
+
+        .product-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .product-quantity {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--light);
+        }
+
+        .quantity-input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 0 0.5rem;
+        }
+
+        .product-total {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .remove-item {
+            color: #95a5a6;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+        }
+
+        .remove-item:hover {
+            color: var(--accent);
+            transform: scale(1.2);
+        }
+
+        /* Cart Summary */
+        .cart-summary {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .summary-label {
+            color: #7f8c8d;
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .summary-total {
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkout-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .checkout-btn i {
+            margin-right: 0.5rem;
+        }
+
+        /* Wishlist */
+        .wishlist-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .wishlist-item {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .wishlist-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .wishlist-image-container {
+            height: 200px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            position: relative;
+        }
+
+        .wishlist-image {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .wishlist-item:hover .wishlist-image {
+            transform: scale(1.1);
+        }
+
+        .wishlist-remove {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .wishlist-remove:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .wishlist-info {
+            padding: 1.5rem;
+        }
+
+        .wishlist-brand {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .wishlist-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .wishlist-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .wishlist-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .move-to-cart {
+            flex: 1;
+            padding: 0.7rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .move-to-cart:hover {
+            background-color: var(--accent);
+        }
+
+        .move-to-cart i {
+            margin-right: 0.5rem;
+        }
+
+        /* Empty States */
+        .empty-state {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #bdc3c7;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .empty-text {
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .empty-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .empty-btn:hover {
+            background-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2);
+        }
+
+        .empty-btn i {
+            margin-right: 0.5rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            position: relative;
+            font-weight: 600;
+            color: #7f8c8d;
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: var(--accent);
+            bottom: -1px;
+            left: 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-bottom: 2rem;
+            }
+            
+            .cart-header, .cart-item {
+                grid-template-columns: 1.5fr 1fr 1fr 0.5fr;
+            }
+            
+            .cart-header div:nth-child(2),
+            .cart-item div:nth-child(2) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cart-header, .cart-item {
+                grid-template-columns: 1fr 1fr 0.5fr;
+            }
+            
+            .cart-header div:nth-child(3),
+            .cart-item div:nth-child(3) {
+                display: none;
+            }
+            
+            .product-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .product-image {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cart-header, .cart-item {
+                grid-template-columns: 1fr 0.5fr;
+            }
+            
+            .cart-header div:nth-child(4),
+            .cart-item div:nth-child(4) {
+                display: none;
+            }
+            
+            .product-quantity {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .quantity-controls {
+                display: flex;
+                margin-top: 0.5rem;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cart-item, .wishlist-item {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <i class="fas fa-shoe-prints"></i> SneakerHub
+        </a>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Produtos</a>
+            <a href="#">Sobre</a>
+            <a href="#">Contato</a>
+        </div>
+        <div class="nav-icons">
+            <div class="nav-icon" id="wishlist-icon">
+                <i class="fas fa-heart"></i>
+                <span class="nav-badge">5</span>
+            </div>
+            <div class="nav-icon" id="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="nav-badge">3</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <div class="sidebar-item active">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Carrinho (3)</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-heart"></i>
+                    <span>Favoritos (5)</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-box"></i>
+                    <span>Meus Pedidos</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-user"></i>
+                    <span>Minha Conta</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            <!-- Tabs for Mobile -->
+            <div class="tabs">
+                <div class="tab active" data-tab="cart">Carrinho (3)</div>
+                <div class="tab" data-tab="wishlist">Favoritos (5)</div>
+            </div>
+            
+            <!-- Cart Content -->
+            <div class="tab-content active" id="cart-content">
+                <div class="section-header">
+                    <h2 class="section-title">Seu Carrinho</h2>
+                    <button class="clear-all">
+                        <i class="fas fa-trash"></i> Limpar Carrinho
+                    </button>
+                </div>
+                
+                <div class="cart-items">
+                    <div class="cart-header">
+                        <div>Produto</div>
+                        <div>Preço</div>
+                        <div>Quantidade</div>
+                        <div>Total</div>
+                        <div></div>
+                    </div>
+                    
+                    <!-- Item 1 -->
+                    <div class="cart-item">
+                        <div class="product-info">
+                            <img src="https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/awjogwdcynzdszrftrqj/air-max-270-mens-shoes-KkLcGR.png" alt="Nike Air Max 270" class="product-image">
+                            <div class="product-details">
+                                <h3>Nike Air Max 270</h3>
+                                <p>Tamanho: 41</p>
+                                <div class="product-color" style="background-color: #000;"></div>
+                            </div>
+                        </div>
+                        <div class="product-price">R$ 899,90</div>
+                        <div class="product-quantity">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1">
+                                <button class="quantity-btn plus">+</button>
+                            </div>
+                        </div>
+                        <div class="product-total">R$ 899,90</div>
+                        <div class="remove-item">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2 -->
+                    <div class="cart-item">
+                        <div class="product-info">
+                            <img src="https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/2cee9868d67c4a7b98a1af0100d9a5a3_9366/Tenis_Ultraboost_22_Preto_GZ0127_01_standard.jpg" alt="Adidas Ultraboost 22" class="product-image">
+                            <div class="product-details">
+                                <h3>Adidas Ultraboost 22</h3>
+                                <p>Tamanho: 42</p>
+                                <div class="product-color" style="background-color: #000;"></div>
+                            </div>
+                        </div>
+                        <div class="product-price">R$ 1.099,90</div>
+                        <div class="product-quantity">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus">-</button>
+                                <input type="number" class="quantity-input" value="1" min="1">
+                                <button class="quantity-btn plus">+</button>
+                            </div>
+                        </div>
+                        <div class="product-total">R$ 1.099,90</div>
+                        <div class="remove-item">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 3 -->
+                    <div class="cart-item">
+                        <div class="product-info">
+                            <img src="https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_600,h_600/global/376650/02/sv01/fnd/BRA/w/1000/h/1000/fmt/png" alt="Puma RS-X" class="product-image">
+                            <div class="product-details">
+                                <h3>Puma RS-X Reinvention</h3>
+                                <p>Tamanho: 40</p>
+                                <div class="product-color" style="background-color: #000;"></div>
+                            </div>
+                        </div>
+                        <div class="product-price">R$ 699,90</div>
+                        <div class="product-quantity">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn minus">-</button>
+                                <input type="number" class="quantity-input" value="2" min="1">
+                                <button class="quantity-btn plus">+</button>
+                            </div>
+                        </div>
+                        <div class="product-total">R$ 1.399,80</div>
+                        <div class="remove-item">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h3>Resumo do Pedido</h3>
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal</span>
+                        <span class="summary-value">R$ 3.399,60</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Frete</span>
+                        <span class="summary-value">R$ 19,90</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Desconto</span>
+                        <span class="summary-value">- R$ 100,00</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span class="summary-label">Total</span>
+                        <span class="summary-value">R$ 3.319,50</span>
+                    </div>
+                    <button class="checkout-btn">
+                        <i class="fas fa-credit-card"></i> Finalizar Compra
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Wishlist Content -->
+            <div class="tab-content" id="wishlist-content">
+                <div class="section-header">
+                    <h2 class="section-title">Seus Favoritos</h2>
+                    <button class="clear-all">
+                        <i class="fas fa-trash"></i> Limpar Favoritos
+                    </button>
+                </div>
+                
+                <div class="wishlist-items">
+                    <!-- Item 1 -->
+                    <div class="wishlist-item">
+                        <div class="wishlist-remove">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="wishlist-image-container">
+                            <img src="https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/awjogwdcynzdszrftrqj/air-max-270-mens-shoes-KkLcGR.png" alt="Nike Air Max 270" class="wishlist-image">
+                        </div>
+                        <div class="wishlist-info">
+                            <div class="wishlist-brand">Nike</div>
+                            <h3 class="wishlist-name">Air Max 270 Masculino</h3>
+                            <div class="wishlist-price">R$ 899,90</div>
+                            <div class="wishlist-actions">
+                                <button class="move-to-cart">
+                                    <i class="fas fa-shopping-cart"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2 -->
+                    <div class="wishlist-item">
+                        <div class="wishlist-remove">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="wishlist-image-container">
+                            <img src="https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/840e8a0d5a1e4d6d8f2eae8e00f7f7a3_9366/Tenis_NMD_R1_Preto_FY6861_01_standard.jpg" alt="Adidas NMD_R1" class="wishlist-image">
+                        </div>
+                        <div class="wishlist-info">
+                            <div class="wishlist-brand">Adidas</div>
+                            <h3 class="wishlist-name">NMD_R1</h3>
+                            <div class="wishlist-price">R$ 799,90</div>
+                            <div class="wishlist-actions">
+                                <button class="move-to-cart">
+                                    <i class="fas fa-shopping-cart"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 3 -->
+                    <div class="wishlist-item">
+                        <div class="wishlist-remove">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="wishlist-image-container">
+                            <img src="https://nb.scene7.com/is/image/NB/m5740v2_nb_05_i?$pdpflexf2$&qlt=80&fmt=webp&wid=440&hei=440" alt="New Balance 574" class="wishlist-image">
+                        </div>
+                        <div class="wishlist-info">
+                            <div class="wishlist-brand">New Balance</div>
+                            <h3 class="wishlist-name">574 Core</h3>
+                            <div class="wishlist-price">R$ 549,90</div>
+                            <div class="wishlist-actions">
+                                <button class="move-to-cart">
+                                    <i class="fas fa-shopping-cart"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 4 -->
+                    <div class="wishlist-item">
+                        <div class="wishlist-remove">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="wishlist-image-container">
+                            <img src="https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/skwgyqrbfzhu6uyeh0gg/revolution-6-road-running-shoes-NC0P7k.png" alt="Nike Revolution 6" class="wishlist-image">
+                        </div>
+                        <div class="wishlist-info">
+                            <div class="wishlist-brand">Nike</div>
+                            <h3 class="wishlist-name">Revolution 6 Next Nature</h3>
+                            <div class="wishlist-price">R$ 399,90</div>
+                            <div class="wishlist-actions">
+                                <button class="move-to-cart">
+                                    <i class="fas fa-shopping-cart"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty State Example (hidden by default) -->
+            <div class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3 class="empty-title">Seu carrinho está vazio</h3>
+                <p class="empty-text">Parece que você ainda não adicionou nenhum produto ao seu carrinho. Comece a explorar nossa coleção e encontre os tênis perfeitos para você!</p>
+                <button class="empty-btn">
+                    <i class="fas fa-shoe-prints"></i> Ver Produtos
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Dados do carrinho e favoritos
+        let cart = [
+            {
+                id: 1,
+                name: "Nike Air Max 270",
+                brand: "Nike",
+                image: "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/awjogwdcynzdszrftrqj/air-max-270-mens-shoes-KkLcGR.png",
+                price: 899.90,
+                size: "41",
+                color: "#000",
+                quantity: 1
+            },
+            {
+                id: 2,
+                name: "Adidas Ultraboost 22",
+                brand: "Adidas",
+                image: "https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/2cee9868d67c4a7b98a1af0100d9a5a3_9366/Tenis_Ultraboost_22_Preto_GZ0127_01_standard.jpg",
+                price: 1099.90,
+                size: "42",
+                color: "#000",
+                quantity: 1
+            },
+            {
+                id: 3,
+                name: "Puma RS-X Reinvention",
+                brand: "Puma",
+                image: "https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_600,h_600/global/376650/02/sv01/fnd/BRA/w/1000/h/1000/fmt/png",
+                price: 699.90,
+                size: "40",
+                color: "#000",
+                quantity: 2
+            }
+        ];
+        
+        let wishlist = [
+            {
+                id: 1,
+                name: "Nike Air Max 270",
+                brand: "Nike",
+                image: "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/awjogwdcynzdszrftrqj/air-max-270-mens-shoes-KkLcGR.png",
+                price: 899.90
+            },
+            {
+                id: 2,
+                name: "Adidas NMD_R1",
+                brand: "Adidas",
+                image: "https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/840e8a0d5a1e4d6d8f2eae8e00f7f7a3_9366/Tenis_NMD_R1_Preto_FY6861_01_standard.jpg",
+                price: 799.90
+            },
+            {
+                id: 3,
+                name: "New Balance 574 Core",
+                brand: "New Balance",
+                image: "https://nb.scene7.com/is/image/NB/m5740v2_nb_05_i?$pdpflexf2$&qlt=80&fmt=webp&wid=440&hei=440",
+                price: 549.90
+            },
+            {
+                id: 4,
+                name: "Nike Revolution 6 Next Nature",
+                brand: "Nike",
+                image: "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/skwgyqrbfzhu6uyeh0gg/revolution-6-road-running-shoes-NC0P7k.png",
+                price: 399.90
+            }
+        ];
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            updateWishlistCount();
+            setupEventListeners();
+            setupTabs();
+        });
+        
+        // Atualizar contador do carrinho
+        function updateCartCount() {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelector('#cart-icon .nav-badge').textContent = totalItems;
+            document.querySelector('.sidebar-item:nth-child(1) span').textContent = `Carrinho (${totalItems})`;
+            document.querySelector('.tab[data-tab="cart"]').textContent = `Carrinho (${totalItems})`;
+        }
+        
+        // Atualizar contador de favoritos
+        function updateWishlistCount() {
+            document.querySelector('#wishlist-icon .nav-badge').textContent = wishlist.length;
+            document.querySelector('.sidebar-item:nth-child(2) span').textContent = `Favoritos (${wishlist.length})`;
+            document.querySelector('.tab[data-tab="wishlist"]').textContent = `Favoritos (${wishlist.length})`;
+        }
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Botões de quantidade
+            document.querySelectorAll('.quantity-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    let value = parseInt(input.value);
+                    
+                    if (this.classList.contains('minus')) {
+                        if (value > 1) {
+                            input.value = value - 1;
+                        }
+                    } else {
+                        input.value = value + 1;
+                    }
+                    
+                    updateItemTotal(this.closest('.cart-item'));
+                    updateCartSummary();
+                });
+            });
+            
+            // Input de quantidade
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.value < 1) this.value = 1;
+                    updateItemTotal(this.closest('.cart-item'));
+                    updateCartSummary();
+                });
+            });
+            
+            // Remover item do carrinho
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const item = this.closest('.cart-item');
+                    item.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        item.remove();
+                        updateCartSummary();
+                        updateCartCount();
+                        
+                        // Mostrar estado vazio se não houver itens
+                        if (document.querySelectorAll('.cart-item').length === 0) {
+                            document.querySelector('.cart-items').style.display = 'none';
+                            document.querySelector('.empty-state').style.display = 'block';
+                        }
+                    }, 300);
+                });
+            });
+            
+            // Limpar carrinho
+            document.querySelector('.clear-all').addEventListener('click', function() {
+                document.querySelectorAll('.cart-item').forEach(item => {
+                    item.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => item.remove(), 300);
+                });
+                
+                setTimeout(() => {
+                    document.querySelector('.cart-items').style.display = 'none';
+                    document.querySelector('.empty-state').style.display = 'block';
+                    updateCartCount();
+                }, 350);
+            });
+            
+            // Remover item dos favoritos
+            document.querySelectorAll('.wishlist-remove').forEach(button => {
+                button.addEventListener('click', function() {
+                    const item = this.closest('.wishlist-item');
+                    item.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        item.remove();
+                        updateWishlistCount();
+                        
+                        // Mostrar estado vazio se não houver itens
+                        if (document.querySelectorAll('.wishlist-item').length === 0) {
+                            document.querySelector('.wishlist-items').style.display = 'none';
+                            document.querySelector('.empty-state').style.display = 'block';
+                        }
+                    }, 300);
+                });
+            });
+            
+            // Mover para o carrinho
+            document.querySelectorAll('.move-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const item = this.closest('.wishlist-item');
+                    const itemId = parseInt(item.dataset.id);
+                    
+                    // Feedback visual
+                    this.innerHTML = '<i class="fas fa-check"></i> Adicionado';
+                    this.style.backgroundColor = '#2ecc71';
+                    
+                    setTimeout(() => {
+                        item.style.animation = 'fadeOut 0.3s ease forwards';
+                        setTimeout(() => {
+                            item.remove();
+                            updateWishlistCount();
+                            
+                            // Atualizar carrinho
+                            const wishlistItem = wishlist.find(i => i.id === itemId);
+                            if (wishlistItem) {
+                                cart.push({...wishlistItem, quantity: 1, size: "40", color: "#000"});
+                                updateCartCount();
+                            }
+                            
+                            // Mostrar estado vazio se não houver itens
+                            if (document.querySelectorAll('.wishlist-item').length === 0) {
+                                document.querySelector('.wishlist-items').style.display = 'none';
+                                document.querySelector('.empty-state').style.display = 'block';
+                            }
+                        }, 300);
+                    }, 1000);
+                });
+            });
+            
+            // Limpar favoritos
+            document.querySelectorAll('.clear-all')[1].addEventListener('click', function() {
+                document.querySelectorAll('.wishlist-item').forEach(item => {
+                    item.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => item.remove(), 300);
+                });
+                
+                setTimeout(() => {
+                    document.querySelector('.wishlist-items').style.display = 'none';
+                    document.querySelector('.empty-state').style.display = 'block';
+                    updateWishlistCount();
+                }, 350);
+            });
+            
+            // Navegação da sidebar
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Simular mudança de página (em um caso real seria um link)
+                    if (this.textContent.includes('Favoritos')) {
+                        document.getElementById('cart-content').classList.remove('active');
+                        document.getElementById('wishlist-content').classList.add('active');
+                        document.querySelector('.tab[data-tab="cart"]').classList.remove('active');
+                        document.querySelector('.tab[data-tab="wishlist"]').classList.add('active');
+                    } else {
+                        document.getElementById('cart-content').classList.add('active');
+                        document.getElementById('wishlist-content').classList.remove('active');
+                        document.querySelector('.tab[data-tab="cart"]').classList.add('active');
+                        document.querySelector('.tab[data-tab="wishlist"]').classList.remove('active');
+                    }
+                });
+            });
+        }
+        
+        // Configurar tabs para mobile
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    const tabId = this.dataset.tab;
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+                });
+            });
+        }
+        
+        // Atualizar total do item
+        function updateItemTotal(item) {
+            const price = parseFloat(item.querySelector('.product-price').textContent.replace('R$ ', '').replace(',', '.'));
+            const quantity = parseInt(item.querySelector('.quantity-input').value);
+            const total = price * quantity;
+            
+            item.querySelector('.product-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')`;
+        }
+        
+        // Atualizar resumo do carrinho
+        function updateCartSummary() {
+            let subtotal = 0;
+            
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const total = parseFloat(item.querySelector('.product-total').textContent.replace('R$ ', '').replace(',', '.'));
+                subtotal += total;
+            });
+            
+            const shipping = 19.90;
+            const discount = 100.00;
+            const total = subtotal + shipping - discount;
+            
+            document.querySelectorAll('.summary-row')[0].querySelector('.summary-value').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')`;
+            document.querySelector('.summary-total .summary-value').textContent = `R$ ${total.toFixed(2).replace('.', ',')`;
+        }
+    </script>
+</body>
+</html>

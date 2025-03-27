@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparador de Tênis Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --text: #34495e;
+            --bg: #f8f9fa;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .filters-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .filter-group {
+            margin-bottom: 0;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .filter-group select, 
+        .filter-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            background-color: var(--light);
+        }
+
+        .filter-group select:focus, 
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .product-card.best-choice::after {
+            content: '★ MELHOR OPÇÃO';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .product-image-container {
+            height: 200px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            position: relative;
+        }
+
+        .product-image {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-brand {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .product-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .product-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stars {
+            color: var(--warning);
+            margin-right: 0.5rem;
+        }
+
+        .rating-value {
+            font-weight: 600;
+        }
+
+        .select-btn {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--secondary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .select-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .select-btn.selected {
+            background-color: var(--accent);
+        }
+
+        .select-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .compare-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .compare-btn {
+            padding: 1rem 2rem;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .compare-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .compare-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .compare-btn i {
+            margin-right: 0.5rem;
+        }
+
+        /* Modal de comparação */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 100;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            max-width: 1000px;
+            margin: 2rem auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background-color: var(--light);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table .feature-name {
+            font-weight: 600;
+            width: 200px;
+        }
+
+        .comparison-table .winner {
+            background-color: rgba(46, 204, 113, 0.1);
+            font-weight: 600;
+            position: relative;
+        }
+
+        .comparison-table .winner::after {
+            content: '✓';
+            color: var(--success);
+            margin-left: 0.5rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .filters-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 1rem auto;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .product-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Encontre o Tênis Perfeito</h1>
+            <p class="subtitle">Compare os melhores modelos do mercado e escolha o ideal para suas necessidades</p>
+        </header>
+
+        <div class="filters-container">
+            <div class="filter-group">
+                <label for="category">Categoria</label>
+                <select id="category">
+                    <option value="all">Todas Categorias</option>
+                    <option value="running">Corrida</option>
+                    <option value="casual">Casual</option>
+                    <option value="training">Treino</option>
+                    <option value="basketball">Basquete</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="brand">Marca</label>
+                <select id="brand">
+                    <option value="all">Todas Marcas</option>
+                    <option value="nike">Nike</option>
+                    <option value="adidas">Adidas</option>
+                    <option value="puma">Puma</option>
+                    <option value="new balance">New Balance</option>
+                    <option value="asics">Asics</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="price-range">Faixa de Preço</label>
+                <select id="price-range">
+                    <option value="all">Qualquer Preço</option>
+                    <option value="0-500">Até R$ 500</option>
+                    <option value="500-800">R$ 500 - R$ 800</option>
+                    <option value="800-1200">R$ 800 - R$ 1200</option>
+                    <option value="1200+">Acima de R$ 1200</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="rating">Avaliação Mínima</label>
+                <select id="rating">
+                    <option value="0">Qualquer Avaliação</option>
+                    <option value="3">3+ Estrelas</option>
+                    <option value="4">4+ Estrelas</option>
+                    <option value="4.5">4.5+ Estrelas</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="comparison-grid" id="products-container">
+            <!-- Produtos serão inseridos aqui via JavaScript -->
+        </div>
+
+        <div class="compare-actions">
+            <button class="compare-btn" id="compare-btn" disabled>
+                <i>🔍</i> Comparar Selecionados (0)
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Comparação -->
+    <div class="modal" id="comparison-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Comparação Detalhada</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="comparison-table" id="comparison-table">
+                    <!-- Conteúdo da comparação será inserido aqui -->
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos produtos
+        const products = [
+            {
+                id: 1,
+                name: "Nike Air Max 270",
+                brand: "nike",
+                image: "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/awjogwdcynzdszrftrqj/air-max-270-mens-shoes-KkLcGR.png",
+                price: 899.90,
+                category: "running",
+                technology: "Air Max (amortecimento)",
+                material: "Mesh respirável",
+                weight: "320g",
+                bestFor: "Corrida/Casual",
+                rating: 4.2,
+                colors: 10,
+                highlights: "Amortecimento excepcional e estilo moderno",
+                description: "O Air Max 270 oferece o maior amortecimento Air Max até hoje, proporcionando conforto inigualável durante todo o dia."
+            },
+            {
+                id: 2,
+                name: "Adidas Ultraboost 22",
+                brand: "adidas",
+                image: "https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/2cee9868d67c4a7b98a1af0100d9a5a3_9366/Tenis_Ultraboost_22_Preto_GZ0127_01_standard.jpg",
+                price: 1099.90,
+                category: "running",
+                technology: "Boost (responsivo)",
+                material: "Primeknit",
+                weight: "310g",
+                bestFor: "Corrida/Performance",
+                rating: 4.8,
+                colors: 8,
+                highlights: "Tecnologia Boost para corrida de alto desempenho",
+                description: "O Ultraboost 22 oferece energia de retorno com cada passo, combinando conforto e desempenho para corredores exigentes.",
+                bestChoice: true
+            },
+            {
+                id: 3,
+                name: "Puma RS-X Reinvention",
+                brand: "puma",
+                image: "https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_600,h_600/global/376650/02/sv01/fnd/BRA/w/1000/h/1000/fmt/png",
+                price: 699.90,
+                category: "casual",
+                technology: "RS (estabilidade)",
+                material: "Couro sintético e mesh",
+                weight: "350g",
+                bestFor: "Estilo Casual",
+                rating: 3.9,
+                colors: 6,
+                highlights: "Design retrô futurista com conforto premium",
+                description: "Inspirado nos anos 80, o RS-X combina estilo retrô com tecnologia moderna para um visual único e conforto duradouro."
+            },
+            {
+                id: 4,
+                name: "New Balance 574 Core",
+                brand: "new balance",
+                image: "https://nb.scene7.com/is/image/NB/m5740v2_nb_05_i?$pdpflexf2$&qlt=80&fmt=webp&wid=440&hei=440",
+                price: 549.90,
+                category: "casual",
+                technology: "ENCAP (conforto)",
+                material: "Suede + mesh",
+                weight: "330g",
+                bestFor: "Casual/Estilo",
+                rating: 4.1,
+                colors: 12,
+                highlights: "Ícone de estilo com conforto clássico",
+                description: "O 574 Core mantém o DNA clássico da New Balance com um design atemporal e conforto que dura o dia todo."
+            },
+            {
+                id: 5,
+                name: "Nike Revolution 6 Next Nature",
+                brand: "nike",
+                image: "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/skwgyqrbfzhu6uyeh0gg/revolution-6-road-running-shoes-NC0P7k.png",
+                price: 399.90,
+                category: "running",
+                technology: "Espuma macia",
+                material: "Mesh reciclado",
+                weight: "290g",
+                bestFor: "Corrida/Casual",
+                rating: 4.0,
+                colors: 5,
+                highlights: "Sustentável e confortável para iniciantes",
+                description: "Feito com materiais reciclados, o Revolution 6 oferece conforto e suporte para seus primeiros passos na corrida."
+            },
+            {
+                id: 6,
+                name: "Adidas NMD_R1",
+                brand: "adidas",
+                image: "https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/840e8a0d5a1e4d6d8f2eae8e00f7f7a3_9366/Tenis_NMD_R1_Preto_FY6861_01_standard.jpg",
+                price: 799.90,
+                category: "casual",
+                technology: "Boost (conforto)",
+                material: "Primeknit",
+                weight: "300g",
+                bestFor: "Casual/Estilo",
+                rating: 4.3,
+                colors: 7,
+                highlights: "Estilo urbano com tecnologia Boost",
+                description: "O NMD_R1 combina o conforto da tecnologia Boost com um design urbano moderno para um visual contemporâneo."
+            }
+        ];
+
+        // Variáveis globais
+        let selectedProducts = [];
+        let filteredProducts = [...products];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts(products);
+            setupEventListeners();
+        });
+
+        // Renderizar produtos
+        function renderProducts(productsToRender) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            filteredProducts = productsToRender;
+            
+            productsToRender.forEach(product => {
+                const isSelected = selectedProducts.includes(product.id);
+                
+                const card = document.createElement('div');
+                card.className = `product-card ${product.bestChoice ? 'best-choice' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="product-image-container">
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">${product.brand.toUpperCase()}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
+                        
+                        <div class="product-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Tecnologia:</span>
+                                <span class="detail-value">${product.technology}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Peso:</span>
+                                <span class="detail-value">${product.weight}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Indicado para:</span>
+                                <span class="detail-value">${product.bestFor}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="rating">
+                            <div class="stars">${'⭐'.repeat(Math.floor(product.rating))}${product.rating % 1 >= 0.5 ? '½' : ''}</div>
+                            <div class="rating-value">${product.rating.toFixed(1)}</div>
+                        </div>
+                        
+                        <button class="select-btn ${isSelected ? 'selected' : ''}" data-id="${product.id}">
+                            ${isSelected ? 'REMOVER' : 'COMPARAR'}
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            updateCompareButton();
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Filtros
+            document.querySelectorAll('.filter-group select').forEach(select => {
+                select.addEventListener('change', filterProducts);
+            });
+            
+            // Botões de seleção
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('select-btn')) {
+                    toggleProductSelection(parseInt(e.target.dataset.id));
+                }
+            });
+            
+            // Botão de comparação
+            document.getElementById('compare-btn').addEventListener('click', showComparison);
+            
+            // Fechar modal
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.getElementById('comparison-modal').style.display = 'none';
+            });
+            
+            // Fechar modal ao clicar fora
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('comparison-modal')) {
+                    document.getElementById('comparison-modal').style.display = 'none';
+                }
+            });
+        }
+
+        // Filtrar produtos
+        function filterProducts() {
+            const category = document.getElementById('category').value;
+            const brand = document.getElementById('brand').value;
+            const priceRange = document.getElementById('price-range').value;
+            const minRating = parseFloat(document.getElementById('rating').value);
+            
+            let results = [...products];
+            
+            // Aplicar filtros
+            if (category !== 'all') {
+                results = results.filter(p => p.category === category);
+            }
+            
+            if (brand !== 'all') {
+                results = results.filter(p => p.brand === brand);
+            }
+            
+            if (priceRange !== 'all') {
+                const [min, max] = priceRange.split('-');
+                if (max) {
+                    results = results.filter(p => p.price >= parseInt(min) && p.price <= parseInt(max));
+                } else {
+                    results = results.filter(p => p.price >= parseInt(min));
+                }
+            }
+            
+            if (minRating > 0) {
+                results = results.filter(p => p.rating >= minRating);
+            }
+            
+            renderProducts(results);
+        }
+
+        // Alternar seleção de produto
+        function toggleProductSelection(productId) {
+            const index = selectedProducts.indexOf(productId);
+            
+            if (index === -1) {
+                if (selectedProducts.length < 4) {
+                    selectedProducts.push(productId);
+                } else {
+                    alert('Você pode comparar no máximo 4 produtos');
+                    return;
+                }
+            } else {
+                selectedProducts.splice(index, 1);
+            }
+            
+            // Atualizar botões
+            document.querySelectorAll('.select-btn').forEach(btn => {
+                const id = parseInt(btn.dataset.id);
+                if (selectedProducts.includes(id)) {
+                    btn.classList.add('selected');
+                    btn.textContent = 'REMOVER';
+                } else {
+                    btn.classList.remove('selected');
+                    btn.textContent = 'COMPARAR';
+                }
+            });
+            
+            updateCompareButton();
+        }
+
+        // Atualizar botão de comparação
+        function updateCompareButton() {
+            const compareBtn = document.getElementById('compare-btn');
+            const count = selectedProducts.length;
+            
+            if (count > 0) {
+                compareBtn.disabled = false;
+                compareBtn.innerHTML = `<i>🔍</i> Comparar Selecionados (${count})`;
+            } else {
+                compareBtn.disabled = true;
+                compareBtn.innerHTML = `<i>🔍</i> Comparar Selecionados (0)`;
+            }
+        }
+
+        // Mostrar comparação
+        function showComparison() {
+            if (selectedProducts.length < 2) {
+                alert('Selecione pelo menos 2 produtos para comparar');
+                return;
+            }
+            
+            const modal = document.getElementById('comparison-modal');
+            const table = document.getElementById('comparison-table');
+            
+            // Obter produtos selecionados
+            const productsToCompare = filteredProducts.filter(p => selectedProducts.includes(p.id));
+            
+            // Gerar tabela de comparação
+            table.innerHTML = `
+                <tr>
+                    <th class="feature-name">Característica</th>
+                    ${productsToCompare.map(p => `<th>${p.name}</th>`).join('')}
+                </tr>
+                
+                <!-- Imagens -->
+                <tr>
+                    <td class="feature-name">Imagem</td>
+                    ${productsToCompare.map(p => `
+                        <td><img src="${p.image}" alt="${p.name}" style="width:120px;height:auto;"></td>
+                    `).join('')}
+                </tr>
+                
+                <!-- Preço -->
+                <tr>
+                    <td class="feature-name">Preço</td>
+                    ${productsToCompare.map(p => `
+                        <td class="${getWinnerClass('price', p.price, productsToCompare)}">
+                            R$ ${p.price.toFixed(2).replace('.', ',')}
+                        </td>
+                    `).join('')}
+                </tr>
+                
+                <!-- Avaliação -->
+                <tr>
+                    <td class="feature-name">Avaliação</td>
+                    ${productsToCompare.map(p => `
+                        <td class="${getWinnerClass('rating', p.rating, productsToCompare)}">
+                            ${p.rating.toFixed(1)} ⭐
+                        </td>
+                    `).join('')}
+                </tr>
+                
+                <!-- Tecnologia -->
+                <tr>
+                    <td class="feature-name">Tecnologia</td>
+                    ${productsToCompare.map(p => `<td>${p.technology}</td>`).join('')}
+                </tr>
+                
+                <!-- Material -->
+                <tr>
+                    <td class="feature-name">Material</td>
+                    ${productsToCompare.map(p => `<td>${p.material}</td>`).join('')}
+                </tr>
+                
+                <!-- Peso -->
+                <tr>
+                    <td class="feature-name">Peso</td>
+                    ${productsToCompare.map(p => `
+                        <td class="${getWinnerClass('weight', parseFloat(p.weight), productsToCompare, true)}">
+                            ${p.weight}
+                        </td>
+                    `).join('')}
+                </tr>
+                
+                <!-- Cores disponíveis -->
+                <tr>
+                    <td class="feature-name">Cores disponíveis</td>
+                    ${productsToCompare.map(p => `<td>${p.colors}</td>`).join('')}
+                </tr>
+                
+                <!-- Destaques -->
+                <tr>
+                    <td class="feature-name">Destaques</td>
+                    ${productsToCompare.map(p => `<td>${p.highlights}</td>`).join('')}
+                </tr>
+                
+                <!-- Descrição -->
+                <tr>
+                    <td class="feature-name">Descrição</td>
+                    ${productsToCompare.map(p => `<td>${p.description}</td>`).join('')}
+                </tr>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // Determinar o vencedor para uma característica
+        function getWinnerClass(feature, value, products, lowerIsBetter = false) {
+            let isWinner = false;
+            
+            if (typeof value === 'number') {
+                if (lowerIsBetter) {
+                    isWinner = value === Math.min(...products.map(p => 
+                        feature === 'weight' ? parseFloat(p.weight) : p[feature]
+                    ));
+                } else {
+                    isWinner = value === Math.max(...products.map(p => p[feature]));
+                }
+            }
+            
+            return isWinner ? 'winner' : '';
+        }
+    </script>
+</body>
+</html>
